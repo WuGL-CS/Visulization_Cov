@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AlexNet 分层特征与类激活可视化</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("alexnet-viz-theme");
+          if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero-inner">
+        <div class="hero-row">
+          <div class="hero-copy">
+        <h1>AlexNet 卷积层可视化</h1>
+        <p class="lead">
+          上传图像后浏览每一层卷积的特征图；点击任意通道，查看<strong>梯度×激活</strong>映射到原图的区域高亮（类激活 / Grad-CAM
+          思路）。从底层边缘纹理到高层部件响应，逐层「打开」CNN 黑箱。
+        </p>
+        <div id="device-pill" class="pill">正在检测设备…</div>
+          </div>
+          <button type="button" id="theme-toggle" class="btn theme-toggle" aria-label="切换浅色或深色外观"></button>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel panel-input">
+        <h2>输入与热力叠加</h2>
+        <div class="upload-row">
+          <label class="btn primary">
+            选择图片
+            <input id="file-input" type="file" accept="image/*" hidden />
+          </label>
+          <span id="file-hint" class="muted">支持常见格式，将缩放至 224×224（ImageNet 预处理）</span>
+        </div>
+        <div class="canvas-stack">
+          <img id="img-input" alt="输入" class="main-img hidden" />
+          <img id="img-overlay" alt="热力叠加" class="main-img overlay hidden" />
+        </div>
+        <p id="heatmap-caption" class="caption muted"></p>
+        <div id="top5" class="top5 hidden"></div>
+      </section>
+
+      <section class="panel panel-layers">
+        <h2>卷积层特征图</h2>
+        <p class="muted small">
+          每层展示前若干通道缩略图（可滚动）。点击某一通道请求服务器计算该通道对输入的敏感区域并叠加显示。
+        </p>
+        <div id="layers-root" class="layers-root">
+          <p class="muted">请先上传图片以运行预训练 AlexNet。</p>
+        </div>
+      </section>
+    </main>
+
+    <section class="panel panel-kernels wide">
+      <h2>第一层卷积核（Conv1，11×11×3）</h2>
+      <p class="muted small">
+        以下为 torchvision 预训练 AlexNet 的真实权重，按 8×8 栅格排列，与经典论文中的可视化一致。
+      </p>
+      <div id="kernels-wrap" class="kernels-wrap">
+        <p class="muted">加载中…</p>
+      </div>
+    </section>
+
+    <footer class="footer muted small">
+      后端：PyTorch + torchvision · 自动使用 GPU（若可用）否则 CPU ·
+      <a href="/api/device" target="_blank" rel="noreferrer">/api/device</a>
+    </footer>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
